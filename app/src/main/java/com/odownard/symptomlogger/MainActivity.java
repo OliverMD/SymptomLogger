@@ -1,6 +1,7 @@
 package com.odownard.symptomlogger;
 
 import android.app.Activity;
+import android.support.design.widget.NavigationView;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -8,7 +9,9 @@ import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,16 +25,18 @@ import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks, QuickSymptomsFragment.OnFragmentInteractionListener {
+        implements QuickSymptomsFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+    //private NavigationDrawerFragment mNavigationDrawerFragment;
+    private Toolbar mToolbar;
+    private NavigationView mNavigationView;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mActionBarDrawerToggle;
 
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
+
     private CharSequence mTitle;
     static final String TAG = "MAIN ACTIVITY";
 
@@ -39,38 +44,40 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mToolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(mToolbar);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+        mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
 
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+        mNavigationView.setNavigationItemSelectedListener(this);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle mActionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar,R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
+        };
+
+        mDrawerLayout.setDrawerListener(mActionBarDrawerToggle);
+        mActionBarDrawerToggle.syncState();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, QuickSymptomsFragment.newInstance(0))
+                .commit();
+        getSupportActionBar().setTitle(R.string.title_section1);
+
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        switch (position) {
-            case 0:
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, QuickSymptomsFragment.newInstance(position + 1))
-                        .commit();
-                break;
-            case 1:
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                        .commit();
-            case 2:
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                        .commit();
-            default:
-                break;
-        }
+    protected void onPostCreate(Bundle savedInstanceState) {
+        mToolbar.setTitle(R.string.title_section1);
+        super.onPostCreate(savedInstanceState);
     }
 
     public void onSectionAttached(int number) {
@@ -87,23 +94,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-            restoreActionBar();
-            return true;
-        }
+
+        getMenuInflater().inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -126,6 +121,38 @@ public class MainActivity extends AppCompatActivity
     public void onFragmentInteraction(String id) {
         Log.v(TAG, id + " clicked");
 
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
+        if(menuItem.isChecked()) menuItem.setChecked(false);
+        else menuItem.setChecked(true);
+
+        mDrawerLayout.closeDrawers();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        switch (menuItem.getItemId()){
+            case R.id.Home:
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, QuickSymptomsFragment.newInstance(0))
+                        .commit();
+                mToolbar.setTitle(R.string.title_section1);
+                break;
+            case R.id.History:
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, PlaceholderFragment.newInstance(1))
+                        .commit();
+                mToolbar.setTitle(R.string.title_section2);
+                break;
+            case R.id.Options:
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, PlaceholderFragment.newInstance(1))
+                        .commit();
+                mToolbar.setTitle(R.string.title_section3);
+                break;
+
+        }
+
+        return true;
     }
 
     /**

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/Home"
+            android:icon="@drawable/ic_action"
+            android:checked="true"
+            android:title="@string/title_section1"/>
+        <item android:id="@+id/History"
+            android:checked="false"
+            android:icon="@drawable/ic_graph"
+            android:title="@string/title_section2"/>
+        <item android:id="@+id/Options"
+            android:checked="false"
+            android:icon="@drawable/ic_option"
+            android:title="@string/title_section3"/>
+    </group>
+
+</menu>
