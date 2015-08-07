@@ -1,6 +1,7 @@
 package com.odownard.symptomlogger;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.support.design.widget.NavigationView;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -23,9 +24,14 @@ import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.odownard.symptomlogger.SymptomManager.SymptomManager;
+
+import java.util.Calendar;
+import java.util.Date;
+
 
 public class MainActivity extends AppCompatActivity
-        implements QuickSymptomsFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener {
+        implements QuickSymptomsFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, HistoryFragment.OnFragmentInteractionListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -69,6 +75,7 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, QuickSymptomsFragment.newInstance(0))
+                .addToBackStack("Home")
                 .commit();
         getSupportActionBar().setTitle(R.string.title_section1);
 
@@ -118,9 +125,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentInteraction(String id) {
-        Log.v(TAG, id + " clicked");
-
+    public void onEpisodeLog(int id) {
+        long datetime = Calendar.getInstance().getTimeInMillis();
+        SymptomManager.getInstance().addEpisode(getContentResolver(), datetime, id);
+        Date d = new Date();
+        d.setTime(datetime);
+        Log.v(TAG,"Logging Episode with Time: " + d.toString() );
     }
 
     @Override
@@ -134,18 +144,21 @@ public class MainActivity extends AppCompatActivity
             case R.id.Home:
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, QuickSymptomsFragment.newInstance(0))
+                        .addToBackStack("Home")
                         .commit();
                 mToolbar.setTitle(R.string.title_section1);
                 break;
             case R.id.History:
                 fragmentManager.beginTransaction()
-                        .replace(R.id.container, PlaceholderFragment.newInstance(1))
+                        .replace(R.id.container, HistoryFragment.newInstance())
+                        .addToBackStack("History")
                         .commit();
                 mToolbar.setTitle(R.string.title_section2);
                 break;
             case R.id.Options:
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, PlaceholderFragment.newInstance(1))
+                        .addToBackStack("Options")
                         .commit();
                 mToolbar.setTitle(R.string.title_section3);
                 break;
@@ -153,6 +166,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         return true;
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        Log.v(TAG,"DING DONG");
     }
 
     /**

@@ -3,8 +3,14 @@ package com.odownard.symptomlogger.SymptomManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
+
+import com.jjoe64.graphview.series.DataPoint;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -35,5 +41,26 @@ public class SymptomManager {
 
         resolver.insert(SymptomManagerContract.Symptoms.CONTENT_URI, values);
         return true;
+    }
+
+    public Boolean addEpisode(ContentResolver resolver, long datetime, int symptomId){
+        ContentValues values = new ContentValues();
+        values.put(SymptomManagerContract.Episodes.DATETIME, datetime);
+        values.put(SymptomManagerContract.Episodes.SYMPTOM_ID, symptomId);
+
+        resolver.insert(SymptomManagerContract.Episodes.CONTENT_URI, values);
+
+        return true;
+    }
+
+    public LinkedList<DataPoint> getNEpisodes(ContentResolver resolver, int n){
+        Cursor cursor = resolver.query(Uri.withAppendedPath(SymptomManagerContract.Symptoms.CONTENT_URI, "/" + SymptomManagerProvider.EPISODES_TABLE_NAME + "/" + Integer.toString(n)), null, null, null, null);
+        LinkedList<DataPoint> retVal = new LinkedList<>();
+        while (cursor.moveToNext()){
+            retVal.add(new DataPoint(cursor.getDouble(cursor.getColumnIndex(SymptomManagerContract.Episodes.DATETIME)), cursor.getInt(cursor.getColumnIndex(SymptomManagerContract.Symptoms.DISCOMFORT))));
+        }
+        cursor.close();
+
+        return retVal;
     }
 }

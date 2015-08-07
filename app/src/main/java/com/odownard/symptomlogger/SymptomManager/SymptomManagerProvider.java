@@ -23,14 +23,15 @@ public class SymptomManagerProvider extends ContentProvider {
     private static final String TAG = "SymptomManagerContentProvider";
     private static final String DATABASE_NAME = "SymptomManager.db";
     private static final int DATABASE_VERSION = 4;
-    private static final String SYMPTOMS_TABLE_NAME = "symptoms";
-    private static final String EPISODES_TABLE_NAME = "episodes";
+    protected static final String SYMPTOMS_TABLE_NAME = "symptoms";
+    protected static final String EPISODES_TABLE_NAME = "episodes";
     public static final String AUTHORITY = "com.odownard.symptomlogger.providers.SymptomManagerProvider";
     private static final UriMatcher sUriMatcher;
     private static final int SYMPTOMS = 1;
     private static final int SYMPTOMS_ID = 2;
     private static final int EPISODES = 3;
     private static final int EPISODES_ID = 4;
+    private static final int EPISODE_SYMPTOM_JOIN = 5;
     private static HashMap<String, String> mProjectionMap;
 
     static {
@@ -39,6 +40,8 @@ public class SymptomManagerProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, SYMPTOMS_TABLE_NAME + "/#", SYMPTOMS_ID);
         sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME, EPISODES);
         sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME + "/#", EPISODES_ID);
+        sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME + "/" + SYMPTOMS_TABLE_NAME+"/#", EPISODE_SYMPTOM_JOIN);
+        sUriMatcher.addURI(AUTHORITY, SYMPTOMS_TABLE_NAME + "/" + EPISODES_TABLE_NAME+"/#", EPISODE_SYMPTOM_JOIN);
 
         mProjectionMap = new HashMap<>();
         mProjectionMap.put(SymptomManagerContract.Symptoms.SYMPTOM_ID, SymptomManagerContract.Symptoms.SYMPTOM_ID);
@@ -96,6 +99,8 @@ public class SymptomManagerProvider extends ContentProvider {
         qb.setTables(SYMPTOMS_TABLE_NAME + ", " + EPISODES_TABLE_NAME);
         qb.setProjectionMap(mProjectionMap);
 
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
         switch (sUriMatcher.match(uri)) {
 
             case SYMPTOMS:
@@ -112,11 +117,25 @@ public class SymptomManagerProvider extends ContentProvider {
                 qb.setTables(EPISODES_TABLE_NAME);
                 selection = selection + "_id = " + uri.getLastPathSegment();
                 break;
+            case EPISODE_SYMPTOM_JOIN:
+                /**
+                final String queryString = "SELECT " + SymptomManagerContract.Episodes.DATETIME + ", " + SymptomManagerContract.Symptoms.DISCOMFORT
+                        + " FROM "
+                        +"( "
+                        + " SELECT TOP (10) * "
+                        + " FROM " + SymptomManagerProvider.SYMPTOMS_TABLE_NAME + " AS S INNER JOIN " + SymptomManagerProvider.EPISODES_TABLE_NAME + " AS E "
+                        + " ON S." + SymptomManagerContract.Symptoms.SYMPTOM_ID + "=E." + SymptomManagerContract.Episodes.SYMPTOM_ID
+                        + " ORDER BY " + SymptomManagerContract.Episodes.DATETIME + " ASC"
+                        + ") "
+                        + "ORDER BY " + SymptomManagerContract.Episodes.DATETIME + " DESC;";
+                 **/
+
+                final String queryString = "SELECT datetime, discomfort FROM(  SELECT * FROM symptoms AS S INNER JOIN episodes AS E ON S._id=E.symptom_id ORDER BY datetime ASC LIMIT 10) ORDER BY datetime ASC;";
+                return db.rawQuery(queryString,new String[]{});
             default:
                 throw new IllegalArgumentException("Unknown Uri " + uri);
         }
 
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
         return qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
