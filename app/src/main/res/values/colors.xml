@@ -3,4 +3,9 @@
     <color name="light_grey">#cccccc</color>
     <color name="ColorPrimary">#FF5722</color>
     <color name="ColorPrimaryDark">#E64A19</color>
+    <color name="ColorPrimaryLight">#FFCCBC</color>
+    <color name="ColorAccent">#536DFE</color>
+    <color name="ColorAccentDark">#3D5AFE</color>
+    <color name="ColorAccentLight">#8C9EFF</color>
+    <color name="White">#FFFFFF</color>
 </resources>

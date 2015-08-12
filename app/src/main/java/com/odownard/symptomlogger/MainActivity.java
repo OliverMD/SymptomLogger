@@ -1,7 +1,9 @@
 package com.odownard.symptomlogger;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -79,6 +81,8 @@ public class MainActivity extends AppCompatActivity
                 .commit();
         getSupportActionBar().setTitle(R.string.title_section1);
 
+        //SymptomManager.getInstance().addSymptom(getContentResolver(), "Knee Dislocation", "Knee has been dislocated");
+        //SymptomManager.getInstance().addSymptom(getContentResolver(), "Wrist Dislocation", "Wrist has been dislocated");
     }
 
     @Override
@@ -125,12 +129,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onEpisodeLog(int id) {
+    public void onEpisodeLog(int id, CharSequence name) {
         long datetime = Calendar.getInstance().getTimeInMillis();
-        SymptomManager.getInstance().addEpisode(getContentResolver(), datetime, id);
-        Date d = new Date();
-        d.setTime(datetime);
-        Log.v(TAG,"Logging Episode with Time: " + d.toString() );
+
+        Bundle data = new Bundle();
+        data.putInt("ID", id + 1); //The +1 is to make the Ids line up correctly to those in the DB
+        data.putLong("Datetime", datetime);
+        data.putCharSequence("Name", name);
+        SymptomDialogFragment dialogFragment = new SymptomDialogFragment();
+        dialogFragment.setArguments(data);
+        dialogFragment.show(getSupportFragmentManager(), "New Episode");
+        //SymptomManager.getInstance().addEpisode(getContentResolver(), datetime, id);
+        //Date d = new Date();
+        //d.setTime(datetime);
+        //Log.v(TAG,"Logging Episode with Time: " + d.toString() );
     }
 
     @Override

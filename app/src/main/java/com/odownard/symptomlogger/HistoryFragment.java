@@ -4,14 +4,14 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 import com.odownard.symptomlogger.SymptomManager.SymptomManager;
 
 import java.util.LinkedList;
@@ -29,6 +29,8 @@ public class HistoryFragment extends Fragment {
 
 
     private OnFragmentInteractionListener mListener;
+    private ViewPager mViewPager;
+    private HistoryViewAdapter mHistoryViewAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -58,17 +60,22 @@ public class HistoryFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v =  inflater.inflate(R.layout.fragment_history, container, false);
-
+        /**
         GraphView graph = (GraphView) v.findViewById(R.id.graph);
 
-        LinkedList<DataPoint> raw = SymptomManager.getInstance().getNEpisodes(getActivity().getContentResolver(), 10);
+        //LinkedList<DataPoint> raw = SymptomManager.getInstance().getNEpisodes(getActivity().getContentResolver(), 10);
+
+        LinkedList<DataPoint> raw = SymptomManager.getInstance().getLastNDaysEpisodes(getActivity().getContentResolver(), 7);
         DataPoint data[] = new DataPoint[raw.size()];
         Log.v(getTag(),raw.toString());
         data = raw.toArray(data);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(data);
         graph.addSeries(series);
+         **/
         //graph.getGridLabelRenderer().setLabelFormatter(new );
-        // TODO: CONTINUE IMPLEMENTING GRAPH STUFF
+        mHistoryViewAdapter = new HistoryViewAdapter(getActivity().getSupportFragmentManager(), getActivity().getContentResolver());
+        mViewPager = (ViewPager) v.findViewById(R.id.history_pager);
+        mViewPager.setAdapter(mHistoryViewAdapter);
         return v;
     }
 
@@ -112,3 +119,4 @@ public class HistoryFragment extends Fragment {
     }
 
 }
+

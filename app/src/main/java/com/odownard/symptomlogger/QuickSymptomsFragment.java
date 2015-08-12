@@ -147,10 +147,11 @@ public class QuickSymptomsFragment extends Fragment implements android.view.View
     @Override
     public void onClick(View v) {
         int id = mRecyclerView.getChildAdapterPosition(v);
+        CharSequence name = ((TextView) v.findViewById(R.id.name)).getText();
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onEpisodeLog(id);
+            mListener.onEpisodeLog(id, name);
         }
 
     }
@@ -167,7 +168,7 @@ public class QuickSymptomsFragment extends Fragment implements android.view.View
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onEpisodeLog(int symptomId);
+        public void onEpisodeLog(int symptomId, CharSequence name);
     }
 
 }

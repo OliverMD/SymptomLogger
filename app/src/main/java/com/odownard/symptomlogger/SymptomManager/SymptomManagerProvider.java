@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ public class SymptomManagerProvider extends ContentProvider {
 
     private static final String TAG = "SymptomManagerContentProvider";
     private static final String DATABASE_NAME = "SymptomManager.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 7;
     protected static final String SYMPTOMS_TABLE_NAME = "symptoms";
     protected static final String EPISODES_TABLE_NAME = "episodes";
     public static final String AUTHORITY = "com.odownard.symptomlogger.providers.SymptomManagerProvider";
@@ -31,7 +32,7 @@ public class SymptomManagerProvider extends ContentProvider {
     private static final int SYMPTOMS_ID = 2;
     private static final int EPISODES = 3;
     private static final int EPISODES_ID = 4;
-    private static final int EPISODE_SYMPTOM_JOIN = 5;
+    private static final int EPISODE_DATETIME_LIM = 5;
     private static HashMap<String, String> mProjectionMap;
 
     static {
@@ -40,15 +41,22 @@ public class SymptomManagerProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, SYMPTOMS_TABLE_NAME + "/#", SYMPTOMS_ID);
         sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME, EPISODES);
         sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME + "/#", EPISODES_ID);
-        sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME + "/" + SYMPTOMS_TABLE_NAME+"/#", EPISODE_SYMPTOM_JOIN);
-        sUriMatcher.addURI(AUTHORITY, SYMPTOMS_TABLE_NAME + "/" + EPISODES_TABLE_NAME+"/#", EPISODE_SYMPTOM_JOIN);
+        sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME + "/"+ SymptomManagerContract.Episodes.DATETIME+"/limit/#",EPISODE_DATETIME_LIM);
+        /**
+        sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME + "/" + SYMPTOMS_TABLE_NAME+"/#", EPISODE_SYMPTOM_JOIN_LIM);
+        sUriMatcher.addURI(AUTHORITY, SYMPTOMS_TABLE_NAME + "/" + EPISODES_TABLE_NAME+"/#", EPISODE_SYMPTOM_JOIN_LIM);
+        sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME + "/" + SYMPTOMS_TABLE_NAME, EPISODE_SYMPTOM_JOIN_ALL);
+        sUriMatcher.addURI(AUTHORITY, SYMPTOMS_TABLE_NAME + "/" + EPISODES_TABLE_NAME, EPISODE_SYMPTOM_JOIN_ALL);
+        sUriMatcher.addURI(AUTHORITY, SYMPTOMS_TABLE_NAME + "/" + EPISODES_TABLE_NAME + "/DATETIME/#", EPISODE_SYMPTOM_JOIN_DATETIME_LIM);
+        sUriMatcher.addURI(AUTHORITY, EPISODES_TABLE_NAME + "/" + SYMPTOMS_TABLE_NAME + "/DATETIME/#", EPISODE_SYMPTOM_JOIN_DATETIME_LIM);
+         **/
 
         mProjectionMap = new HashMap<>();
         mProjectionMap.put(SymptomManagerContract.Symptoms.SYMPTOM_ID, SymptomManagerContract.Symptoms.SYMPTOM_ID);
         mProjectionMap.put(SymptomManagerContract.Symptoms.NAME, SymptomManagerContract.Symptoms.NAME);
         mProjectionMap.put(SymptomManagerContract.Symptoms.DESCRIPTION, SymptomManagerContract.Symptoms.DESCRIPTION);
-        mProjectionMap.put(SymptomManagerContract.Symptoms.DISCOMFORT, SymptomManagerContract.Symptoms.DISCOMFORT);
 
+        mProjectionMap.put(SymptomManagerContract.Episodes.DISCOMFORT, SymptomManagerContract.Episodes.DISCOMFORT);
         mProjectionMap.put(SymptomManagerContract.Episodes.EPISODE_ID, SymptomManagerContract.Episodes.EPISODE_ID);
         mProjectionMap.put(SymptomManagerContract.Episodes.DATETIME, SymptomManagerContract.Episodes.DATETIME);
         mProjectionMap.put(SymptomManagerContract.Episodes.SYMPTOM_ID, SymptomManagerContract.Episodes.SYMPTOM_ID);
@@ -66,12 +74,12 @@ public class SymptomManagerProvider extends ContentProvider {
             //Create the symptoms table
             db.execSQL("CREATE TABLE " + SYMPTOMS_TABLE_NAME + "( " + SymptomManagerContract.Symptoms.SYMPTOM_ID +
             " INTEGER PRIMARY KEY AUTOINCREMENT, " + SymptomManagerContract.Symptoms.NAME + " VARCHAR(255), " +
-                    SymptomManagerContract.Symptoms.DESCRIPTION + " LONGTEXT, " + SymptomManagerContract.Symptoms.DISCOMFORT +
-            " INTEGER);");
+                    SymptomManagerContract.Symptoms.DESCRIPTION + " LONGTEXT);");
 
             //Create episodes table
             db.execSQL("CREATE TABLE " + EPISODES_TABLE_NAME + "( " + SymptomManagerContract.Episodes.EPISODE_ID +
             " INTEGER PRIMARY KEY AUTOINCREMENT, " + SymptomManagerContract.Episodes.DATETIME + " INTEGER, " +
+                            SymptomManagerContract.Episodes.DISCOMFORT + " REAL, "+
                     SymptomManagerContract.Episodes.SYMPTOM_ID + " INTEGER, FOREIGN KEY(" + SymptomManagerContract.Episodes.SYMPTOM_ID +
             ") REFERENCES " + SYMPTOMS_TABLE_NAME + "(" + SymptomManagerContract.Symptoms.SYMPTOM_ID + "));");
         }
@@ -79,7 +87,7 @@ public class SymptomManagerProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL("DROP TABLE IF EXISTS "+ SYMPTOMS_TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS "+ EPISODES_TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + EPISODES_TABLE_NAME);
             onCreate(db);
         }
     }
@@ -96,7 +104,6 @@ public class SymptomManagerProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setTables(SYMPTOMS_TABLE_NAME + ", " + EPISODES_TABLE_NAME);
         qb.setProjectionMap(mProjectionMap);
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -117,21 +124,59 @@ public class SymptomManagerProvider extends ContentProvider {
                 qb.setTables(EPISODES_TABLE_NAME);
                 selection = selection + "_id = " + uri.getLastPathSegment();
                 break;
-            case EPISODE_SYMPTOM_JOIN:
-                /**
-                final String queryString = "SELECT " + SymptomManagerContract.Episodes.DATETIME + ", " + SymptomManagerContract.Symptoms.DISCOMFORT
-                        + " FROM "
+            case EPISODE_DATETIME_LIM:
+                qb.setTables(EPISODES_TABLE_NAME);
+                if (selection == null) {
+                    selection = SymptomManagerContract.Episodes.DATETIME + " > " + uri.getLastPathSegment();
+                } else {
+                    selection += " AND " + SymptomManagerContract.Episodes.DATETIME + " > " + uri.getLastPathSegment();
+                }
+                break;
+            /**
+            case EPISODE_SYMPTOM_JOIN_LIM:
+
+                final String oldQueryString = "SELECT " + SymptomManagerContract.Episodes.DATETIME + ", " + SymptomManagerContract.Symptoms.DISCOMFORT
+                        + " FROM"
                         +"( "
-                        + " SELECT TOP (10) * "
-                        + " FROM " + SymptomManagerProvider.SYMPTOMS_TABLE_NAME + " AS S INNER JOIN " + SymptomManagerProvider.EPISODES_TABLE_NAME + " AS E "
+                        + " SELECT *"
+                        + " FROM " + SymptomManagerProvider.SYMPTOMS_TABLE_NAME + " AS S INNER JOIN " + SymptomManagerProvider.EPISODES_TABLE_NAME + " AS E"
+                        + " ON S." + SymptomManagerContract.Symptoms.SYMPTOM_ID + "=E." + SymptomManagerContract.Episodes.SYMPTOM_ID
+                        + " ORDER BY " + SymptomManagerContract.Episodes.DATETIME + " ASC "
+                        + "LIMIT ?"
+                        + ") "
+                        + "ORDER BY " + SymptomManagerContract.Episodes.DATETIME + " ASC;";
+                //Log.v("SYMPTOM MANAGER", uri.getLastPathSegment());
+                //final String queryString = "SELECT datetime, discomfort FROM(  SELECT * FROM symptoms AS S INNER JOIN episodes AS E ON S._id=E.symptom_id ORDER BY datetime ASC LIMIT ?) ORDER BY datetime ASC;";
+                //Log.v("SYMPTOM MANAGER", oldQueryString);
+                //Log.v("SYMPTOM MANAGER", queryString);
+                return db.rawQuery(oldQueryString,new String[]{uri.getLastPathSegment()});
+             **/
+
+        /**
+            case EPISODE_SYMPTOM_JOIN_ALL:
+                final String allJoinQueryString = "SELECT " + SymptomManagerContract.Episodes.DATETIME + ", " + SymptomManagerContract.Symptoms.DISCOMFORT
+                        + " FROM"
+                        +"( "
+                        + " SELECT *"
+                        + " FROM " + SymptomManagerProvider.SYMPTOMS_TABLE_NAME + " AS S INNER JOIN " + SymptomManagerProvider.EPISODES_TABLE_NAME + " AS E"
                         + " ON S." + SymptomManagerContract.Symptoms.SYMPTOM_ID + "=E." + SymptomManagerContract.Episodes.SYMPTOM_ID
                         + " ORDER BY " + SymptomManagerContract.Episodes.DATETIME + " ASC"
                         + ") "
-                        + "ORDER BY " + SymptomManagerContract.Episodes.DATETIME + " DESC;";
-                 **/
-
-                final String queryString = "SELECT datetime, discomfort FROM(  SELECT * FROM symptoms AS S INNER JOIN episodes AS E ON S._id=E.symptom_id ORDER BY datetime ASC LIMIT 10) ORDER BY datetime ASC;";
-                return db.rawQuery(queryString,new String[]{});
+                        + "ORDER BY " + SymptomManagerContract.Episodes.DATETIME + " ASC;";
+                return db.rawQuery(allJoinQueryString, null);
+            case EPISODE_SYMPTOM_JOIN_DATETIME_LIM:
+                final String datetimeJoinQueryString = "SELECT " + SymptomManagerContract.Episodes.DATETIME + ", " + SymptomManagerContract.Symptoms.DISCOMFORT
+                        + " FROM"
+                        +"( "
+                        + " SELECT *"
+                        + " FROM " + SymptomManagerProvider.SYMPTOMS_TABLE_NAME + " AS S INNER JOIN " + SymptomManagerProvider.EPISODES_TABLE_NAME + " AS E"
+                        + " ON S." + SymptomManagerContract.Symptoms.SYMPTOM_ID + "=E." + SymptomManagerContract.Episodes.SYMPTOM_ID
+                        + " WHERE " + SymptomManagerContract.Episodes.DATETIME + " > ?"
+                        + " ORDER BY " + SymptomManagerContract.Episodes.DATETIME + " ASC"
+                        + ") "
+                        + "ORDER BY " + SymptomManagerContract.Episodes.DATETIME + " ASC;";
+                return db.rawQuery(datetimeJoinQueryString, new String[]{uri.getLastPathSegment()});
+**/
             default:
                 throw new IllegalArgumentException("Unknown Uri " + uri);
         }

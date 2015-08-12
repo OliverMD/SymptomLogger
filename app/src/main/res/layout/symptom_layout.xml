@@ -16,7 +16,9 @@
         card_view:cardCornerRadius="2dp"
         card_view:cardUseCompatPadding="true"
         android:foreground="?attr/selectableItemBackground"
-        card_view:cardElevation="2sp">
+        card_view:cardElevation="2sp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginRight="1dp">
 
         <RelativeLayout
             android:layout_width="match_parent"

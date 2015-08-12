@@ -5,10 +5,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Pair;
 
-import com.jjoe64.graphview.series.DataPoint;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,31 +34,45 @@ public class SymptomManager {
         return resolver.query(SymptomManagerContract.Symptoms.CONTENT_URI, cols,null,null,null );
     }
 
-    public Boolean addSymptom(ContentResolver resolver, String name, String desc, int discomfort){
+    public ArrayList<Pair<Integer, String>> getSymptomsList(ContentResolver resolver){
+        Cursor cursor = getSymptoms(resolver);
+
+        ArrayList<Pair<Integer, String>> ret = new ArrayList<>(cursor.getCount());
+        while (cursor.moveToNext()){
+            ret.add(new Pair<Integer, String>(cursor.getInt(cursor.getColumnIndex(SymptomManagerContract.Symptoms.SYMPTOM_ID)), cursor.getString(cursor.getColumnIndex(SymptomManagerContract.Symptoms.NAME))));
+        }
+        cursor.close();
+
+        return ret;
+    }
+
+    public Boolean addSymptom(ContentResolver resolver, String name, String desc){
         ContentValues values = new ContentValues();
         values.put(SymptomManagerContract.Symptoms.NAME, name);
         values.put(SymptomManagerContract.Symptoms.DESCRIPTION, desc);
-        values.put(SymptomManagerContract.Symptoms.DISCOMFORT, discomfort);
 
         resolver.insert(SymptomManagerContract.Symptoms.CONTENT_URI, values);
         return true;
     }
 
-    public Boolean addEpisode(ContentResolver resolver, long datetime, int symptomId){
+    public Boolean addEpisode(ContentResolver resolver, long datetime, int symptomId, float discomfort){
         ContentValues values = new ContentValues();
         values.put(SymptomManagerContract.Episodes.DATETIME, datetime);
         values.put(SymptomManagerContract.Episodes.SYMPTOM_ID, symptomId);
+        values.put(SymptomManagerContract.Episodes.DISCOMFORT, discomfort);
 
         resolver.insert(SymptomManagerContract.Episodes.CONTENT_URI, values);
 
         return true;
     }
 
-    public LinkedList<DataPoint> getNEpisodes(ContentResolver resolver, int n){
-        Cursor cursor = resolver.query(Uri.withAppendedPath(SymptomManagerContract.Symptoms.CONTENT_URI, "/" + SymptomManagerProvider.EPISODES_TABLE_NAME + "/" + Integer.toString(n)), null, null, null, null);
-        LinkedList<DataPoint> retVal = new LinkedList<>();
+    public LinkedList<Pair<Long, Integer>> getLastNDaysEpisodes(ContentResolver resolver, int n, int id){
+        long lastDate =  Calendar.getInstance().getTimeInMillis() - (86400000L * n);
+        final String[] cols = {SymptomManagerContract.Episodes.DATETIME, SymptomManagerContract.Episodes.DISCOMFORT};
+        Cursor cursor = resolver.query(Uri.withAppendedPath(SymptomManagerContract.Episodes.CONTENT_URI,"/"+SymptomManagerContract.Episodes.DATETIME+"/limit/"+Long.toString(lastDate)), cols, SymptomManagerContract.Episodes.SYMPTOM_ID + " = " + Integer.toString(id), null, null);
+        LinkedList<Pair<Long, Integer>> retVal = new LinkedList<>();
         while (cursor.moveToNext()){
-            retVal.add(new DataPoint(cursor.getDouble(cursor.getColumnIndex(SymptomManagerContract.Episodes.DATETIME)), cursor.getInt(cursor.getColumnIndex(SymptomManagerContract.Symptoms.DISCOMFORT))));
+            retVal.add(new Pair<Long, Integer>(Double.doubleToLongBits((cursor.getDouble(cursor.getColumnIndex(SymptomManagerContract.Episodes.DATETIME)) - (Calendar.getInstance().getTimeInMillis() - (86400000L * n)))/86400000), cursor.getInt(cursor.getColumnIndex(SymptomManagerContract.Episodes.DISCOMFORT))));
         }
         cursor.close();
 
