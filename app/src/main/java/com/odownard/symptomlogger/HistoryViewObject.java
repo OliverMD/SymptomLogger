@@ -8,9 +8,8 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.odownard.symptomlogger.SymptomManager.SymptomManager;
+import com.odownard.symptomlogger.DataManager.DataManager;
 
 import java.util.LinkedList;
 
@@ -45,7 +44,7 @@ public class HistoryViewObject extends Fragment {
         View view = inflater.inflate(R.layout.history_object, container, false);
         //((TextView) view.findViewById(R.id.symptom_text)).setText(Integer.toString(mId));
 
-        LinkedList<Pair<Long, Integer>> raw = SymptomManager.getInstance().getLastNDaysEpisodes(getActivity().getContentResolver(), 7, mId);
+        LinkedList<Pair<Long, Integer>> raw = DataManager.getInstance().getLastNDaysEpisodes(getActivity().getContentResolver(), 7, mId);
         return view;
     }
 }

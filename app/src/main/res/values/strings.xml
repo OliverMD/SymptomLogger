@@ -2,8 +2,8 @@
     <string name="app_name">SymptomLogger</string>
 
     <string name="title_section1">Home</string>
-    <string name="title_section2">History</string>
-    <string name="title_section3">Options</string>
+    <string name="title_section2">Symptoms</string>
+    <string name="title_section3">Tags</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

@@ -1,39 +1,29 @@
 package com.odownard.symptomlogger;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import com.odownard.symptomlogger.SymptomManager.SymptomManager;
+import com.odownard.symptomlogger.Adapters.SimpleCursorRecyclerAdapter;
+import com.odownard.symptomlogger.DataManager.DataManager;
 
 import java.util.Calendar;
-import java.util.Date;
 
 
 public class MainActivity extends AppCompatActivity
-        implements QuickSymptomsFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, HistoryFragment.OnFragmentInteractionListener {
+        implements MainFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, SymptomListFragment.OnSymptomListInteractionListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -42,7 +32,6 @@ public class MainActivity extends AppCompatActivity
     private Toolbar mToolbar;
     private NavigationView mNavigationView;
     private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mActionBarDrawerToggle;
 
 
     private CharSequence mTitle;
@@ -76,13 +65,10 @@ public class MainActivity extends AppCompatActivity
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, QuickSymptomsFragment.newInstance(0))
+                .replace(R.id.container, MainFragment.newInstance(0))
                 .addToBackStack("Home")
                 .commit();
         getSupportActionBar().setTitle(R.string.title_section1);
-
-        //SymptomManager.getInstance().addSymptom(getContentResolver(), "Knee Dislocation", "Knee has been dislocated");
-        //SymptomManager.getInstance().addSymptom(getContentResolver(), "Wrist Dislocation", "Wrist has been dislocated");
     }
 
     @Override
@@ -129,20 +115,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onEpisodeLog(int id, CharSequence name) {
+    public void onEpisodeLog(long id, CharSequence name, int type) {
         long datetime = Calendar.getInstance().getTimeInMillis();
 
         Bundle data = new Bundle();
-        data.putInt("ID", id + 1); //The +1 is to make the Ids line up correctly to those in the DB
+        data.putLong("ID", id); //The +1 is to make the Ids line up correctly to those in the DB
         data.putLong("Datetime", datetime);
         data.putCharSequence("Name", name);
-        SymptomDialogFragment dialogFragment = new SymptomDialogFragment();
-        dialogFragment.setArguments(data);
-        dialogFragment.show(getSupportFragmentManager(), "New Episode");
-        //SymptomManager.getInstance().addEpisode(getContentResolver(), datetime, id);
-        //Date d = new Date();
-        //d.setTime(datetime);
-        //Log.v(TAG,"Logging Episode with Time: " + d.toString() );
+        if (type == SimpleCursorRecyclerAdapter.SYMPTOM_TYPE) {
+            SymptomDialogFragment dialogFragment = new SymptomDialogFragment();
+            dialogFragment.setArguments(data);
+            dialogFragment.show(getSupportFragmentManager(), "New Episode");
+        } else {
+            DataManager.getInstance().addTagEpisode(getContentResolver(), datetime, id);
+            Toast.makeText(getApplicationContext(),"Tag Episode Added!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -155,22 +142,22 @@ public class MainActivity extends AppCompatActivity
         switch (menuItem.getItemId()){
             case R.id.Home:
                 fragmentManager.beginTransaction()
-                        .replace(R.id.container, QuickSymptomsFragment.newInstance(0))
+                        .replace(R.id.container, MainFragment.newInstance(0))
                         .addToBackStack("Home")
                         .commit();
                 mToolbar.setTitle(R.string.title_section1);
                 break;
             case R.id.History:
                 fragmentManager.beginTransaction()
-                        .replace(R.id.container, HistoryFragment.newInstance())
-                        .addToBackStack("History")
+                        .replace(R.id.container, SymptomListFragment.newInstance())
+                        .addToBackStack("Symptoms")
                         .commit();
                 mToolbar.setTitle(R.string.title_section2);
                 break;
             case R.id.Options:
                 fragmentManager.beginTransaction()
-                        .replace(R.id.container, PlaceholderFragment.newInstance(1))
-                        .addToBackStack("Options")
+                        .replace(R.id.container, TagListFragment.newInstance())
+                        .addToBackStack("Tags")
                         .commit();
                 mToolbar.setTitle(R.string.title_section3);
                 break;
@@ -178,11 +165,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         return true;
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-        Log.v(TAG,"DING DONG");
     }
 
     /**

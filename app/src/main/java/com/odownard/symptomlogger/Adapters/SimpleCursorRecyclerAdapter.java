@@ -1,4 +1,4 @@
-package com.odownard.symptomlogger;/*
+package com.odownard.symptomlogger.Adapters;/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2015 ARNAUD FRUGIER
@@ -24,24 +24,28 @@ package com.odownard.symptomlogger;/*
 
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.odownard.symptomlogger.CursorRecyclerAdapter;
-
 public class SimpleCursorRecyclerAdapter extends CursorRecyclerAdapter<SimpleViewHolder> {
 
-    private int mLayout;
+    public static final int SYMPTOM_TYPE = 0;
+    public static final int TAG_TYPE = 1;
+
+    private int mSymptomLayout;
+    private int mTagLayout;
     private int[] mFrom;
     private int[] mTo;
     private String[] mOriginalFrom;
     private View.OnClickListener mClickListener;
 
-    public SimpleCursorRecyclerAdapter (int layout, Cursor c, String[] from, int[] to, View.OnClickListener clickListener) {
+    public SimpleCursorRecyclerAdapter (int symptomLayout, int tagLayout, Cursor c, String[] from, int[] to, View.OnClickListener clickListener) {
         super(c);
-        mLayout = layout;
+        mSymptomLayout = symptomLayout;
+        mTagLayout = tagLayout;
         mTo = to;
         mOriginalFrom = from;
         findColumns(c, from);
@@ -49,9 +53,29 @@ public class SimpleCursorRecyclerAdapter extends CursorRecyclerAdapter<SimpleVie
     }
 
     @Override
+    public int getItemViewType(int position) {
+        getCursor().moveToPosition(position);
+        Log.v("Get View Type", getCursor().getString(getCursor().getColumnIndex("source")));
+        if (getCursor().getString(getCursor().getColumnIndex("source")).equals( "symptoms")){//TODO: Make this less flimsy
+            return SYMPTOM_TYPE;
+        } else {
+            return TAG_TYPE;
+        }
+    }
+
+    @Override
     public SimpleViewHolder onCreateViewHolder (ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(mLayout, parent, false);
+        View v;
+        switch (viewType){
+            case SYMPTOM_TYPE:
+                v = LayoutInflater.from(parent.getContext()).inflate(mSymptomLayout, parent, false);
+                break;
+            case TAG_TYPE:
+                v = LayoutInflater.from(parent.getContext()).inflate(mTagLayout, parent, false);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid view type");
+        }
         v.setOnClickListener(new View.OnClickListener() {
 
             @Override

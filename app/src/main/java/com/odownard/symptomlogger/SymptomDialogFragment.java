@@ -11,8 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.odownard.symptomlogger.SymptomManager.SymptomManager;
+import com.odownard.symptomlogger.DataManager.DataManager;
 
 /**
  * Created by olive_000 on 10/08/2015.
@@ -61,7 +62,8 @@ public class SymptomDialogFragment extends DialogFragment {
                 float discomfort = Integer.parseInt(tmp);
                 Log.v(getTag(), "text " + progressText.getText());
                 Log.v(getTag(),"Adding new episode: discomfort -> " + Float.toString(discomfort));
-                SymptomManager.getInstance().addEpisode(getActivity().getContentResolver(), data.getLong("Datetime"), data.getInt("ID"), discomfort);
+                DataManager.getInstance().addEpisode(getActivity().getContentResolver(), data.getLong("Datetime"), data.getLong("ID"), discomfort);
+                Toast.makeText(getActivity().getApplicationContext(), "Symptom Added!", Toast.LENGTH_SHORT).show();
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override

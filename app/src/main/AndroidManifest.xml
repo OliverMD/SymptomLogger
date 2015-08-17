@@ -19,8 +19,8 @@
             </intent-filter>
         </activity>
         <provider
-            android:authorities="com.odownard.symptomlogger.providers.SymptomManagerProvider"
-            android:name=".SymptomManager.SymptomManagerProvider"></provider>
+            android:authorities="com.odownard.symptomlogger.providers.DataManagerProvider"
+            android:name=".DataManager.DataManagerProvider"></provider>
     </application>
 
 

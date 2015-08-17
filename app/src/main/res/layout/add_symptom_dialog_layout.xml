@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:layout_marginTop="24dp"
+    android:layout_marginLeft="24dp"
+    android:layout_marginRight="24dp"
+    android:layout_marginBottom="24dp">
+    <TextView
+        android:id="@+id/add_symptom_dialog_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/abc_text_size_title_material"
+        android:layout_marginBottom="20dp"/>
+    <TextView
+        android:id="@+id/add_symptom_description_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter the details of the symptom"
+        android:textColor="@color/abc_secondary_text_material_light"
+        android:textSize="@dimen/abc_text_size_caption_material"
+        android:layout_marginBottom="20dp"/>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"/>
+    </android.support.design.widget.TextInputLayout>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description"/>
+    </android.support.design.widget.TextInputLayout>
+</LinearLayout>

@@ -1,4 +1,4 @@
-package com.odownard.symptomlogger;
+package com.odownard.symptomlogger.Adapters;
 /*
  * The MIT License (MIT)
  *

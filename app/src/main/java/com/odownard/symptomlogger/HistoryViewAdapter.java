@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Pair;
 
-import com.odownard.symptomlogger.SymptomManager.SymptomManager;
+import com.odownard.symptomlogger.DataManager.DataManager;
 
 import java.util.ArrayList;
 
@@ -15,7 +15,7 @@ public class HistoryViewAdapter extends FragmentStatePagerAdapter {
 
     public HistoryViewAdapter(FragmentManager fm, ContentResolver resolver) {
         super(fm);
-        mSymptoms = SymptomManager.getInstance().getSymptomsList(resolver);
+        mSymptoms = DataManager.getInstance().getSymptomsList(resolver);
     }
 
     @Override

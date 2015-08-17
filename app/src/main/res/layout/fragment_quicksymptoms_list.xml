@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.odownard.symptomlogger.QuickSymptomsFragment">
+    tools:context="com.odownard.symptomlogger.MainFragment">
 
     <!--<ListView android:id="@android:id/list" android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -12,7 +12,8 @@
         android:id="@+id/cardList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#607D8B"
+        android:background="#E0E0E0"
+        android:layout_marginTop="0dp"
         />
 
     <TextView android:id="@android:id/empty" android:layout_width="match_parent"
