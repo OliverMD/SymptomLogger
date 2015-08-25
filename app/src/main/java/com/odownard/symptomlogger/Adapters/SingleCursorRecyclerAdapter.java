@@ -4,6 +4,9 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+
+import com.odownard.symptomlogger.R;
 
 /**
  * Created by olive_000 on 13/08/2015.
@@ -15,9 +18,11 @@ public class SingleCursorRecyclerAdapter extends CursorRecyclerAdapter<SimpleVie
     private int[] mFrom;
     private int[] mTo;
     private String[] mOriginalFrom;
-    private View.OnClickListener mClickListener;
+    private ItemClickListener mClickListener;
 
-    public SingleCursorRecyclerAdapter (int symptomLayout, Cursor c, String[] from, int[] to, View.OnClickListener clickListener) {
+    public SingleCursorRecyclerAdapter (int symptomLayout,
+                                        Cursor c, String[] from,
+                                        int[] to, ItemClickListener clickListener) {
         super(c);
         mSymptomLayout = symptomLayout;
         mTo = to;
@@ -35,13 +40,20 @@ public class SingleCursorRecyclerAdapter extends CursorRecyclerAdapter<SimpleVie
 
     @Override
     public SimpleViewHolder onCreateViewHolder (ViewGroup parent, int viewType) {
-        View v;
+        final View v;
         v = LayoutInflater.from(parent.getContext()).inflate(mSymptomLayout, parent, false);
+        final FrameLayout frameLayout = (FrameLayout) v.findViewById(R.id.del_but);
+        frameLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mClickListener.onClick(v, frameLayout.getId());
+            }
+        });
         v.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View v) {
-                mClickListener.onClick(v);
+            public void onClick(View view) {
+                mClickListener.onClick(view, view.getId());
             }
         });
         return new SimpleViewHolder(v, mTo);

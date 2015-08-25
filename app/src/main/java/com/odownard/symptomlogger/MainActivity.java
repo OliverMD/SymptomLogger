@@ -18,6 +18,10 @@ import android.widget.Toast;
 
 import com.odownard.symptomlogger.Adapters.SimpleCursorRecyclerAdapter;
 import com.odownard.symptomlogger.DataManager.DataManager;
+import com.odownard.symptomlogger.TopLevelViews.Home.MainFragment;
+import com.odownard.symptomlogger.TopLevelViews.Home.NewEpisodeDialogFragment;
+import com.odownard.symptomlogger.TopLevelViews.Symptoms.SymptomListFragment;
+import com.odownard.symptomlogger.TopLevelViews.Tags.TagListFragment;
 
 import java.util.Calendar;
 
@@ -123,13 +127,19 @@ public class MainActivity extends AppCompatActivity
         data.putLong("Datetime", datetime);
         data.putCharSequence("Name", name);
         if (type == SimpleCursorRecyclerAdapter.SYMPTOM_TYPE) {
-            SymptomDialogFragment dialogFragment = new SymptomDialogFragment();
+            NewEpisodeDialogFragment dialogFragment = new NewEpisodeDialogFragment();
             dialogFragment.setArguments(data);
             dialogFragment.show(getSupportFragmentManager(), "New Episode");
         } else {
             DataManager.getInstance().addTagEpisode(getContentResolver(), datetime, id);
             Toast.makeText(getApplicationContext(),"Tag Episode Added!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        mToolbar.setTitle(title);
     }
 
     @Override

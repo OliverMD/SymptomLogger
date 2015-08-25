@@ -155,6 +155,7 @@ public class DataManagerProvider extends ContentProvider {
                 } else {
                     selection += " AND " + DataManagerContract.Episodes.DATETIME + " > " + uri.getLastPathSegment();
                 }
+                sortOrder = DataManagerContract.Episodes.DATETIME + " ASC";
                 break;
             case HOME_ELEMENTS:
                 String queryString = "SELECT " + DataManagerContract.Symptoms.SYMPTOM_ID + ", " + DataManagerContract.Symptoms.NAME + ", " + DataManagerContract.Symptoms.DESCRIPTION
@@ -256,28 +257,28 @@ public class DataManagerProvider extends ContentProvider {
                 break;
             case EPISODES_ID:
                 table = EPISODES_TABLE_NAME;
-                selection = selection + "_id = " + uri.getLastPathSegment();
+                selection = "_id = " + uri.getLastPathSegment();
                 break;
             case SYMPTOMS:
                 table = SYMPTOMS_TABLE_NAME;
                 break;
             case SYMPTOMS_ID:
                 table = SYMPTOMS_TABLE_NAME;
-                selection = selection + "_id = " + uri.getLastPathSegment();
+                selection = "_id = " + uri.getLastPathSegment();
                 break;
             case TAGS:
                 table = TAG_TABLE_NAME;
                 break;
             case TAGS_ID:
                 table = TAG_TABLE_NAME;
-                selection = selection + "_id = " + uri.getLastPathSegment();
+                selection = "_id = " + uri.getLastPathSegment();
                 break;
             case TAG_EPISODES:
                 table = TAG_EPISODES_TABLE_NAME;
                 break;
             case TAG_EPISODES_ID:
                 table = TAG_EPISODES_TABLE_NAME;
-                selection = selection + "_id = " + uri.getLastPathSegment();
+                selection = "_id = " + uri.getLastPathSegment();
                 break;
             default:
                 throw new IllegalArgumentException("Unknown Uri "+uri);

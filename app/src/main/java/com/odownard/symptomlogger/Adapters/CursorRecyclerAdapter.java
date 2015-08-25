@@ -124,6 +124,7 @@ public abstract class CursorRecyclerAdapter<VH extends RecyclerView.ViewHolder> 
             // notify the observers about the lack of a data set
             notifyItemRangeRemoved(0, getItemCount());
         }
+        super.notifyDataSetChanged();
         return oldCursor;
     }
 
