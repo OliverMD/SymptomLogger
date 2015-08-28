@@ -24,20 +24,39 @@
             android:id="@+id/graph_card_view"
             android:layout_gravity="center_horizontal"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="300dp"
             card_view:cardCornerRadius="2dp"
             card_view:cardUseCompatPadding="true"
             card_view:cardElevation="2sp"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
-            android:background="@color/ColorAccentDark">
+            android:background="@color/ColorPrimaryLight">
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                android:background="@color/ColorPrimaryLight">
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recent Severity"
+                    android:paddingTop="4dp"
+                    android:paddingLeft="8dp"
+                    android:textSize="18sp"/>
+                </LinearLayout>
 
             <com.github.mikephil.charting.charts.LineChart
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/line_graph"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginTop="12dp"
                 />
+            </LinearLayout>
         </android.support.v7.widget.CardView>
         <android.support.v7.widget.CardView
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -45,13 +64,36 @@
             android:id="@+id/info_card_view"
             android:layout_gravity="center_horizontal"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="300dp"
             card_view:cardCornerRadius="2dp"
             card_view:cardUseCompatPadding="true"
             card_view:cardElevation="2sp"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp"
             android:background="@color/ColorAccentDark">
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                android:background="@color/ColorPrimaryLight">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recent Frequency"
+                    android:paddingTop="4dp"
+                    android:paddingLeft="8dp"
+                    android:textSize="18sp"/>
+
+                <com.github.mikephil.charting.charts.BarChart
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/freq_line_graph"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="12dp"
+                    />
+
+            </LinearLayout>
         </android.support.v7.widget.CardView>
 
     </LinearLayout>

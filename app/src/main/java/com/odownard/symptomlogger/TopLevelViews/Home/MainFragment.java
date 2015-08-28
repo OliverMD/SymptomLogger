@@ -75,6 +75,13 @@ public class MainFragment extends Fragment implements android.view.View.OnClickL
         super.onDetach();
         mListener = null;
     }
+
+    @Override
+    public void onResume() {
+        mListener.onMainFragmentResume();
+        super.onResume();
+    }
+
     /**
      * The default content for this Fragment has a TextView that is shown when
      * the list is empty. If you would like to change the text, call this method
@@ -109,6 +116,7 @@ public class MainFragment extends Fragment implements android.view.View.OnClickL
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onEpisodeLog(long symptomId, CharSequence name, int type);
+        void onMainFragmentResume();
     }
 
 }

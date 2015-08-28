@@ -5,6 +5,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
+import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,7 +28,10 @@ import java.util.Calendar;
 
 
 public class MainActivity extends AppCompatActivity
-        implements MainFragment.OnFragmentInteractionListener, NavigationView.OnNavigationItemSelectedListener, SymptomListFragment.OnSymptomListInteractionListener {
+        implements MainFragment.OnFragmentInteractionListener,
+        NavigationView.OnNavigationItemSelectedListener,
+        SymptomListFragment.OnSymptomListInteractionListener,
+        TagListFragment.OnTagListInteractionListener{
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -52,7 +56,9 @@ public class MainActivity extends AppCompatActivity
 
         mNavigationView.setNavigationItemSelectedListener(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle mActionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar,R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+        //mDrawerLayout.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        ActionBarDrawerToggle mActionBarDrawerToggle = new ActionBarDrawerToggle(this,
+                mDrawerLayout, mToolbar,R.string.navigation_drawer_open, R.string.navigation_drawer_close){
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
@@ -70,9 +76,17 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, MainFragment.newInstance(0))
-                .addToBackStack("Home")
                 .commit();
         getSupportActionBar().setTitle(R.string.title_section1);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)){
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -85,12 +99,15 @@ public class MainActivity extends AppCompatActivity
         switch (number) {
             case 1:
                 mTitle = getString(R.string.title_section1);
+                mNavigationView.getMenu().getItem(1).setChecked(true);
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
+                mNavigationView.getMenu().getItem(2).setChecked(true);
                 break;
             case 3:
                 mTitle = getString(R.string.title_section3);
+                mNavigationView.getMenu().getItem(3).setChecked(true);
                 break;
         }
     }
@@ -137,6 +154,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onMainFragmentResume() {
+        mNavigationView.getMenu().getItem(0).setChecked(true);
+    }
+
+    @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
         mToolbar.setTitle(title);
@@ -157,14 +179,14 @@ public class MainActivity extends AppCompatActivity
                         .commit();
                 mToolbar.setTitle(R.string.title_section1);
                 break;
-            case R.id.History:
+            case R.id.Symptoms:
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, SymptomListFragment.newInstance())
                         .addToBackStack("Symptoms")
                         .commit();
                 mToolbar.setTitle(R.string.title_section2);
                 break;
-            case R.id.Options:
+            case R.id.Tags:
                 fragmentManager.beginTransaction()
                         .replace(R.id.container, TagListFragment.newInstance())
                         .addToBackStack("Tags")
@@ -177,44 +199,13 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
+    @Override
+    public void onSymptomListResume() {
+        mNavigationView.getMenu().getItem(1).setChecked(true);
     }
 
+    @Override
+    public void onTagListResume() {
+        mNavigationView.getMenu().getItem(2).setChecked(true);
+    }
 }

@@ -29,7 +29,7 @@ import com.odownard.symptomlogger.R;
  */
 public class TagListFragment extends Fragment implements ItemClickListener {
 
-    private ItemClickListener mListener;
+    private OnTagListInteractionListener mListener;
     RecyclerView mRecyclerView;
     FloatingActionButton mFab;
 
@@ -90,6 +90,7 @@ public class TagListFragment extends Fragment implements ItemClickListener {
 
         mRecyclerView.setAdapter(singleCursorRecyclerAdapter);
         getActivity().setTitle("Tags");
+        Log.v("TAG", "TAG VIEW CREATED");
 
         return view;
     }
@@ -98,7 +99,7 @@ public class TagListFragment extends Fragment implements ItemClickListener {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = this;
+            mListener = (OnTagListInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -118,6 +119,12 @@ public class TagListFragment extends Fragment implements ItemClickListener {
     }
 
     @Override
+    public void onResume() {
+        mListener.onTagListResume();
+        super.onResume();
+    }
+
+    @Override
     public void onClick(View parent, int clickedView) {
         if (clickedView == R.id.del_but){
             long id = mRecyclerView.getAdapter()
@@ -131,5 +138,9 @@ public class TagListFragment extends Fragment implements ItemClickListener {
                             getTags(getActivity().getContentResolver()));
             mRecyclerView.getAdapter().notifyDataSetChanged();
         }
+    }
+
+    public interface OnTagListInteractionListener {
+        void onTagListResume();
     }
 }

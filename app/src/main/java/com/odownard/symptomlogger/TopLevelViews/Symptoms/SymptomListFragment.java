@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,11 +80,16 @@ public class SymptomListFragment extends Fragment implements ItemClickListener {
         final String[] cols = {DataManagerContract.Symptoms.NAME};
         final int[] to = {R.id.name};
 
-        SingleCursorRecyclerAdapter singleCursorRecyclerAdapter = new SingleCursorRecyclerAdapter(R.layout.symptom_list_layout, DataManager.getInstance().getSymptoms(getActivity().getContentResolver()),cols,to,this);
-        singleCursorRecyclerAdapter.getCursor().setNotificationUri(getActivity().getContentResolver(), DataManagerContract.Symptoms.CONTENT_URI);
+        SingleCursorRecyclerAdapter singleCursorRecyclerAdapter =
+                new SingleCursorRecyclerAdapter(R.layout.symptom_list_layout,
+                        DataManager.getInstance().getSymptoms(getActivity().getContentResolver()),
+                        cols,to,this);
+        singleCursorRecyclerAdapter.getCursor().setNotificationUri(getActivity().
+                getContentResolver(), DataManagerContract.Symptoms.CONTENT_URI);
 
         mRecyclerView.setAdapter(singleCursorRecyclerAdapter);
         getActivity().setTitle("Symptoms");
+        Log.v("Symtpoms", "SYMPTOM VIEW CREATED");
         return view;
     }
     @Override
@@ -92,7 +98,8 @@ public class SymptomListFragment extends Fragment implements ItemClickListener {
         switch (clickedChild) {
             case R.id.del_but:
                 DataManager.getInstance().deleteSymptom(getActivity().getContentResolver(), id);
-                Toast.makeText(getActivity().getApplicationContext(), "Symptom Deleted!", Toast.LENGTH_SHORT)
+                Toast.makeText(getActivity().getApplicationContext(), "Symptom Deleted!",
+                        Toast.LENGTH_SHORT)
                         .show();
                 ((CursorRecyclerAdapter)mRecyclerView.getAdapter())
                         .changeCursor(DataManager.getInstance().
@@ -100,7 +107,8 @@ public class SymptomListFragment extends Fragment implements ItemClickListener {
                 mRecyclerView.getAdapter().notifyDataSetChanged();
                 break;
             default:
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, SymptomInfoFragment.newInstance(id))
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container,
+                        SymptomInfoFragment.newInstance(id))
                         .addToBackStack("Symptom-Info")
                         .commit();
         }
@@ -122,8 +130,16 @@ public class SymptomListFragment extends Fragment implements ItemClickListener {
         mListener = null;
     }
 
+    @Override
+    public void onResume() {
+        Log.v("Symptoms", "Symptom Fragment resumed!");
+        mListener.onSymptomListResume();
+        super.onResume();
+    }
+
     public void refreshAdapter(){
-        ((CursorRecyclerAdapter)mRecyclerView.getAdapter()).changeCursor(DataManager.getInstance().getSymptoms(getActivity().getContentResolver()));
+        ((CursorRecyclerAdapter)mRecyclerView.getAdapter()).changeCursor(DataManager.getInstance()
+                .getSymptoms(getActivity().getContentResolver()));
         mRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
@@ -149,7 +165,7 @@ public class SymptomListFragment extends Fragment implements ItemClickListener {
      */
     public interface OnSymptomListInteractionListener {
         // TODO: Update argument type and name
-        //public void onEpisodeLog(long symptomId, CharSequence name, int type);
+        public void onSymptomListResume();
     }
 
 }

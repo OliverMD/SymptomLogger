@@ -12,6 +12,7 @@ import com.github.mikephil.charting.data.Entry;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 
 /**
@@ -140,8 +141,8 @@ public class DataManager {
     }
 
     public ArrayList<Float> getLastNDaysEpisodesDayNormalised(ContentResolver resolver, int n, long id){
-        long lastDate = Calendar.getInstance().getTimeInMillis() - (86400000L * n);
-        addEpisode(resolver,Calendar.getInstance().getTimeInMillis() - (86400000L * 5), id, 34.0f );
+        long lastDate = GregorianCalendar.getInstance().getTimeInMillis() - (86400000L * n);
+        //addEpisode(resolver, GregorianCalendar.getInstance().getTimeInMillis() - (86400000L * 4), id, 34.0f);
         final String[] cols = {DataManagerContract.Episodes.DATETIME, DataManagerContract.Episodes.DISCOMFORT};
         Cursor cursor = resolver.query(Uri.withAppendedPath(DataManagerContract.Episodes.CONTENT_URI, "/"
                         + DataManagerContract.Episodes.DATETIME + "/limit/" + Long.toString(lastDate)),
@@ -150,15 +151,19 @@ public class DataManager {
         while(retList.size()<n) retList.add(0.0f);
         int day = n-1;
         Log.v("Mid Point", retList.toString());
-        while (cursor.moveToNext() && day >= 0){
-
+        boolean valid = cursor.moveToFirst();
+        while (valid && day >= 0){
             if (cursor.getLong(cursor.getColumnIndex(DataManagerContract.Episodes.DATETIME))
                     > (Calendar.getInstance().getTimeInMillis() - (86400000L * day))){
                 day -=1;
                 cursor.moveToPrevious();
             } else{
-                retList.set(day, retList.get(day) + cursor.getFloat(cursor.getColumnIndex(DataManagerContract.Episodes.DISCOMFORT)));
+                retList.set(day, retList.get(day)
+                        + cursor
+                        .getFloat(cursor.getColumnIndex(DataManagerContract.Episodes.DISCOMFORT)));
             }
+
+            valid = cursor.moveToNext();
         }
         Log.v("Mid Point", retList.toString());
         float maxVal = 1.0f;
@@ -166,10 +171,51 @@ public class DataManager {
             if (retList.get(idx) > maxVal) maxVal = retList.get(idx);
         }
         for (int idx = 0; idx < retList.size(); idx++){
-            retList.set(idx, retList.get(idx)/maxVal);
+            retList.set(idx, (retList.get(idx)/maxVal) * 100);
         }
         Log.v("Mid Point", retList.toString());
         cursor.close();
+        return retList;
+    }
+
+    public ArrayList<Float> getLastNDaysEpisodesFrequency(ContentResolver resolver, int n, long id){
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.add(GregorianCalendar.DAY_OF_YEAR, -1 * (n-1));
+        calendar.set(GregorianCalendar.HOUR_OF_DAY, 0);
+        calendar.set(GregorianCalendar.MINUTE, 0);
+        calendar.set(GregorianCalendar.SECOND, 0);
+        calendar.set(GregorianCalendar.MILLISECOND, 0);
+        long lastDate = calendar.getTimeInMillis();
+
+        final String[] cols = {DataManagerContract.Episodes.DATETIME
+                , DataManagerContract.Episodes.DISCOMFORT};
+        Cursor cursor = resolver.query(Uri.withAppendedPath(DataManagerContract.Episodes.CONTENT_URI, "/"
+                        + DataManagerContract.Episodes.DATETIME + "/limit/" + Long.toString(lastDate)),
+                cols, DataManagerContract.Episodes.SYMPTOM_ID + " = " + Long.toString(id), null, null);
+        ArrayList<Float> retList = new ArrayList<Float>(n);
+        int day = 0;
+        while(retList.size()<n) retList.add(0.0f);
+        calendar.add(GregorianCalendar.DAY_OF_YEAR, 1);
+
+        while (cursor.moveToNext()) Log.v("Cursor", Long.toString(cursor.getLong(cursor.getColumnIndex(DataManagerContract.Episodes.DATETIME))));
+
+        cursor.moveToFirst();
+        boolean valid = cursor.moveToFirst();
+        while (valid){
+            Log.v("Calendar", calendar.toString());
+            if (cursor.getLong(cursor.getColumnIndex(DataManagerContract.Episodes.DATETIME))
+                    > calendar.getTimeInMillis()){
+                calendar.add(GregorianCalendar.DAY_OF_YEAR, 1);
+                cursor.moveToPrevious();
+                day += 1;
+            } else {
+                //Log.v("FREQ:", )
+                retList.set(day, retList.get(day) + 1);
+            }
+            valid = cursor.moveToNext();
+        }
+        cursor.close();
+
         return retList;
     }
 }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.odownard.symptomlogger.R;
 
@@ -43,10 +44,17 @@ public class SingleCursorRecyclerAdapter extends CursorRecyclerAdapter<SimpleVie
         final View v;
         v = LayoutInflater.from(parent.getContext()).inflate(mSymptomLayout, parent, false);
         final FrameLayout frameLayout = (FrameLayout) v.findViewById(R.id.del_but);
+        final FrameLayout linearLayout = (FrameLayout) v.findViewById(R.id.main_pane);
         frameLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mClickListener.onClick(v, frameLayout.getId());
+            }
+        });
+        linearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mClickListener.onClick(v, view.getId());
             }
         });
         v.setOnClickListener(new View.OnClickListener() {

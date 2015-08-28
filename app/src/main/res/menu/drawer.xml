@@ -5,14 +5,18 @@
             android:icon="@drawable/ic_action"
             android:checked="true"
             android:title="@string/title_section1"/>
-        <item android:id="@+id/History"
+        <item android:id="@+id/Symptoms"
             android:checked="false"
             android:icon="@drawable/ic_graph"
             android:title="@string/title_section2"/>
+        <item android:id="@+id/Tags"
+            android:checked="false"
+            android:icon="@drawable/ic_graph"
+            android:title="@string/title_section3"/>
         <item android:id="@+id/Options"
             android:checked="false"
             android:icon="@drawable/ic_option"
-            android:title="@string/title_section3"/>
+            android:title="@string/title_section4"/>
     </group>
 
 </menu>
