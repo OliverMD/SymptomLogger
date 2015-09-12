@@ -17,10 +17,17 @@
         android:id="@+id/add_symptom_description_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Enter the details of the symptom"
+        android:text="Enter the details"
         android:textColor="@color/abc_secondary_text_material_light"
         android:textSize="@dimen/abc_text_size_caption_material"
         android:layout_marginBottom="20dp"/>
+    <Spinner
+        android:id="@+id/type_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:layout_marginBottom="4dp"
+        android:paddingTop="8dp"/>
     <android.support.design.widget.TextInputLayout
         android:id="@+id/input_name"
         android:layout_width="match_parent"

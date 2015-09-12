@@ -15,4 +15,8 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="low_button">Low</string>
+    <string name="avg_button">Average</string>
+    <string name="hi_button">High</string>
+    <string name="discomfort_dialog_text">How much discomfort is this causing?</string>
 </resources>

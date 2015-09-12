@@ -28,7 +28,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import com.odownard.symptomlogger.R;
 
 public class SimpleCursorRecyclerAdapter extends CursorRecyclerAdapter<SimpleViewHolder> {
 
@@ -40,23 +43,27 @@ public class SimpleCursorRecyclerAdapter extends CursorRecyclerAdapter<SimpleVie
     private int[] mFrom;
     private int[] mTo;
     private String[] mOriginalFrom;
-    private View.OnClickListener mClickListener;
+    private SymptomClickListener mSymptomClickListener;
+    private TagClickListener mTagClickListener;
 
-    public SimpleCursorRecyclerAdapter (int symptomLayout, int tagLayout, Cursor c, String[] from, int[] to, View.OnClickListener clickListener) {
+    public SimpleCursorRecyclerAdapter (int symptomLayout, int tagLayout, Cursor c, String[] from,
+                                        int[] to, SymptomClickListener symptomClickListener,
+                                        TagClickListener tagClickListener) {
         super(c);
         mSymptomLayout = symptomLayout;
         mTagLayout = tagLayout;
         mTo = to;
         mOriginalFrom = from;
         findColumns(c, from);
-        mClickListener = clickListener;
+        mSymptomClickListener = symptomClickListener;
+        mTagClickListener = tagClickListener;
     }
 
     @Override
     public int getItemViewType(int position) {
         getCursor().moveToPosition(position);
         Log.v("Get View Type", getCursor().getString(getCursor().getColumnIndex("source")));
-        if (getCursor().getString(getCursor().getColumnIndex("source")).equals( "symptoms")){//TODO: Make this less flimsy
+        if (getCursor().getString(getCursor().getColumnIndex("source")).equals( "symptoms")){
             return SYMPTOM_TYPE;
         } else {
             return TAG_TYPE;
@@ -65,25 +72,54 @@ public class SimpleCursorRecyclerAdapter extends CursorRecyclerAdapter<SimpleVie
 
     @Override
     public SimpleViewHolder onCreateViewHolder (ViewGroup parent, int viewType) {
-        View v;
+        final View view;
         switch (viewType){
             case SYMPTOM_TYPE:
-                v = LayoutInflater.from(parent.getContext()).inflate(mSymptomLayout, parent, false);
+                //Assume symptom_list_layout.xml is used as the layout
+                view = LayoutInflater.from(parent.getContext()).inflate(mSymptomLayout, parent, false);
+                final FrameLayout sDeleteButton = (FrameLayout) view.findViewById(R.id.del_but);
+                final FrameLayout sLogButton = (FrameLayout) view.findViewById(R.id.log_but);
+                final FrameLayout sHistoryButton = (FrameLayout) view.findViewById(R.id.hist_but);
+                sDeleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSymptomClickListener.onDeleteClick(view);
+                    }
+                });
+                sLogButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSymptomClickListener.onLogClick(view);
+                    }
+                });
+                sHistoryButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSymptomClickListener.onHistoryClick(view);
+                    }
+                });
                 break;
             case TAG_TYPE:
-                v = LayoutInflater.from(parent.getContext()).inflate(mTagLayout, parent, false);
+                view = LayoutInflater.from(parent.getContext()).inflate(mTagLayout, parent, false);
+                final FrameLayout tDeleteButton = (FrameLayout) view.findViewById(R.id.del_but);
+                final FrameLayout tLogButton = (FrameLayout) view.findViewById(R.id.log_but);
+                tDeleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mTagClickListener.onDeleteClick(view);
+                    }
+                });
+                tLogButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mTagClickListener.onLogClick(view);
+                    }
+                });
                 break;
             default:
                 throw new IllegalArgumentException("Invalid view type");
         }
-        v.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                mClickListener.onClick(v);
-            }
-        });
-        return new SimpleViewHolder(v, mTo);
+        return new SimpleViewHolder(view, mTo);
     }
 
     @Override

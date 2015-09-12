@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="history_array">
+        <item>7 Days</item>
+        <item>14 Days</item>
+        <item>Month</item>
+        <item>3 Months</item>
+    </string-array>
+</resources>

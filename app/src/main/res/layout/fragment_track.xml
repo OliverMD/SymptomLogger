@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/White"
+    android:id="@+id/track_fragment">
+    <LinearLayout
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:gravity="center_horizontal"
+        android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:paddingTop="8dp"
+        android:background="@color/White">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+            <Spinner
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:id="@+id/date_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:entries="@array/history_array"/>
+        </FrameLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:text="Total Symptom Frequency"
+            android:textSize="18sp"/>
+        <com.github.mikephil.charting.charts.BarChart
+            android:layout_marginTop="8dp"
+            android:id="@+id/overall_freq_graph"
+            android:layout_height="300dp"
+            android:layout_width="match_parent"/>
+
+
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Notifications"
+        >
+        <CheckBoxPreference
+            android:key="pref_alarm"
+            android:title="Reminder Notification"
+            android:summary="Remind you every day at a specified time to input symptoms"
+            android:defaultValue="false"
+            />
+        <com.odownard.symptomlogger.TimePreference
+            android:key="pref_alarm_time"
+            android:title="Pick Time"
+            android:dependency="pref_alarm"
+            />
+    </PreferenceCategory>
+
+</PreferenceScreen>

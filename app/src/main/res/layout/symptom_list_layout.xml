@@ -14,95 +14,109 @@
         card_view:cardBackgroundColor="#FAFAFA"
         card_view:cardElevation="2sp"
         android:drawSelectorOnTop="true"
-        android:clickable="true"
-        android:foreground="?attr/selectableItemBackground"
-        android:background="?attr/selectableItemBackground">
+        android:clickable="false">
 
         <com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:drawSelectorOnTop="true"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackground"
-            android:background="?attr/selectableItemBackground">
-            <FrameLayout
-                android:id="@+id/del_but"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:background="#B71C1C"
-                android:drawSelectorOnTop="true"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:weightSum="1">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_delete_white_24dp"
-                    android:layout_gravity="center"/>
-            </FrameLayout>
+            android:clickable="false">
+            <LinearLayout
+                android:layout_width="120dp"
+                android:layout_height="match_parent">
+                <FrameLayout
+                    android:id="@+id/hist_but"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/HistoryColor"
+                    android:drawSelectorOnTop="true"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:weightSum="1">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_history_white_24dp"
+                        android:layout_gravity="center"/>
+                </FrameLayout>
+                <FrameLayout
+                    android:id="@+id/del_but"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:background="#B71C1C"
+                    android:drawSelectorOnTop="true"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:weightSum="1">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_delete_white_24dp"
+                        android:layout_gravity="center"/>
+                </FrameLayout>
+            </LinearLayout>
             <FrameLayout
                 android:id="@+id/main_pane"
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
-                android:clickable="true"
+                android:clickable="false"
                 android:drawSelectorOnTop="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:background="?attr/selectableItemBackground"
                 android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/name"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_gravity="start|center"
-                    android:gravity="start|center"
-                    android:paddingLeft="16dp"
-                    android:textSize="16sp" />
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_local_hospital_black_24dp"
+                        android:paddingLeft="16dp"
+                        android:layout_gravity="center_vertical"/>
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="16dp"
+                        android:textSize="16sp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="65dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right"
+                    android:orientation="horizontal"
+                    android:weightSum="1"
+                    android:gravity="end">>
+                <FrameLayout
+                    android:id="@+id/log_but"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/RecordColor"
+                    android:drawSelectorOnTop="true"
+                    android:clickable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:weightSum="1">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_mode_edit_white_24dp"
+                        android:layout_gravity="center"/>
+                </FrameLayout>
                 <LinearLayout
                     android:layout_width="5dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="right"
-                    android:background="#B71C1C"
+                    android:background="@color/HistoryColor"
                     android:orientation="horizontal"
                     android:weightSum="1"
                     android:gravity="end">
 
                 </LinearLayout>
+                </LinearLayout>
             </FrameLayout>
 
         </com.daimajia.swipe.SwipeLayout>
-        <!--
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-            <TextView
-                android:id="@+id/name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_gravity="left|center"
-                android:paddingTop="0dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="0dp"
-                android:textSize="20sp" />
-            <FrameLayout
-                android:id="@+id/del_but"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="right"
-                android:gravity="center"
-                android:background="#B71C1C"
-                android:drawSelectorOnTop="true"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackground">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_delete_white_24dp"
-                    android:layout_gravity="center"/>
-            </FrameLayout>
-        </LinearLayout> -->
-
     </android.support.v7.widget.CardView>
 
 </LinearLayout>

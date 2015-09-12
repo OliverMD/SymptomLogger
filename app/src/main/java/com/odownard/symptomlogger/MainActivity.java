@@ -1,49 +1,30 @@
 package com.odownard.symptomlogger;
 
-import android.app.Activity;
-import android.support.design.widget.NavigationView;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v4.view.GravityCompat;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
-import android.widget.Toast;
 
-import com.odownard.symptomlogger.Adapters.SimpleCursorRecyclerAdapter;
-import com.odownard.symptomlogger.DataManager.DataManager;
-import com.odownard.symptomlogger.TopLevelViews.Home.MainFragment;
-import com.odownard.symptomlogger.TopLevelViews.Home.NewEpisodeDialogFragment;
-import com.odownard.symptomlogger.TopLevelViews.Symptoms.SymptomListFragment;
-import com.odownard.symptomlogger.TopLevelViews.Tags.TagListFragment;
-
-import java.util.Calendar;
+import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity
-        implements MainFragment.OnFragmentInteractionListener,
-        NavigationView.OnNavigationItemSelectedListener,
-        SymptomListFragment.OnSymptomListInteractionListener,
-        TagListFragment.OnTagListInteractionListener{
+public class MainActivity extends AppCompatActivity implements RecordListFragment.RecordListListener{
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
-    //private NavigationDrawerFragment mNavigationDrawerFragment;
     private Toolbar mToolbar;
-    private NavigationView mNavigationView;
-    private DrawerLayout mDrawerLayout;
-
-
-    private CharSequence mTitle;
-    static final String TAG = "MAIN ACTIVITY";
+    private ViewPager mViewPager;
+    private FragmentPagerAdapter mFragmentPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,64 +33,58 @@ public class MainActivity extends AppCompatActivity
         mToolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(mToolbar);
 
-        mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
 
-        mNavigationView.setNavigationItemSelectedListener(this);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        //mDrawerLayout.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        ActionBarDrawerToggle mActionBarDrawerToggle = new ActionBarDrawerToggle(this,
-                mDrawerLayout, mToolbar,R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+
+        mFragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
+            public Fragment getItem(int position) {
+                switch (position){
+                    case 0:
+                        return RecordFragment.newInstance();
+                    case 1:
+                        return TrackFragment.newInstance();
+                    default:
+                        return null;
+                }
             }
 
             @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
+            public int getCount() {
+                return 2;
             }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                switch (position){
+                    case 0:
+                        return "Record";
+                    case 1:
+                        return "Track";
+                    default:
+                        return "Bugger";
+                }
+            }
+
+            @Override
+            public int getItemPosition(Object object) {
+                Log.v("Item Position: ", object.toString());
+                return super.getItemPosition(object);
+            }
+
+
         };
+        mViewPager = (ViewPager) findViewById(R.id.main_view_pager);
+        mViewPager.setAdapter(mFragmentPagerAdapter);
 
-        mDrawerLayout.setDrawerListener(mActionBarDrawerToggle);
-        mActionBarDrawerToggle.syncState();
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(mViewPager);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, MainFragment.newInstance(0))
-                .commit();
-        getSupportActionBar().setTitle(R.string.title_section1);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)){
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         mToolbar.setTitle(R.string.title_section1);
         super.onPostCreate(savedInstanceState);
-    }
-
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                mNavigationView.getMenu().getItem(1).setChecked(true);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                mNavigationView.getMenu().getItem(2).setChecked(true);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                mNavigationView.getMenu().getItem(3).setChecked(true);
-                break;
-        }
     }
 
 
@@ -129,6 +104,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(this, SettingsActivity.class);
+            startActivity(i);
             return true;
         }
 
@@ -136,76 +113,39 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onEpisodeLog(long id, CharSequence name, int type) {
-        long datetime = Calendar.getInstance().getTimeInMillis();
-
-        Bundle data = new Bundle();
-        data.putLong("ID", id); //The +1 is to make the Ids line up correctly to those in the DB
-        data.putLong("Datetime", datetime);
-        data.putCharSequence("Name", name);
-        if (type == SimpleCursorRecyclerAdapter.SYMPTOM_TYPE) {
-            NewEpisodeDialogFragment dialogFragment = new NewEpisodeDialogFragment();
-            dialogFragment.setArguments(data);
-            dialogFragment.show(getSupportFragmentManager(), "New Episode");
-        } else {
-            DataManager.getInstance().addTagEpisode(getContentResolver(), datetime, id);
-            Toast.makeText(getApplicationContext(),"Tag Episode Added!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onMainFragmentResume() {
-        mNavigationView.getMenu().getItem(0).setChecked(true);
-    }
-
-    @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
         mToolbar.setTitle(title);
     }
-
     @Override
-    public boolean onNavigationItemSelected(MenuItem menuItem) {
-        if(menuItem.isChecked()) menuItem.setChecked(false);
-        else menuItem.setChecked(true);
-
-        mDrawerLayout.closeDrawers();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        switch (menuItem.getItemId()){
-            case R.id.Home:
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, MainFragment.newInstance(0))
-                        .addToBackStack("Home")
-                        .commit();
-                mToolbar.setTitle(R.string.title_section1);
-                break;
-            case R.id.Symptoms:
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, SymptomListFragment.newInstance())
-                        .addToBackStack("Symptoms")
-                        .commit();
-                mToolbar.setTitle(R.string.title_section2);
-                break;
-            case R.id.Tags:
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, TagListFragment.newInstance())
-                        .addToBackStack("Tags")
-                        .commit();
-                mToolbar.setTitle(R.string.title_section3);
-                break;
-
+    public void onBackPressed() {
+        if (!returnBackStackImmediate(getSupportFragmentManager())) {
+            super.onBackPressed();
         }
+    }
 
-        return true;
+
+
+    // HACK: propagate back button press to child fragments.
+    // This might not work properly when you have multiple fragments adding multiple children to the backstack.
+    // (in our case, only one child fragments adds fragments to the backstack, so we're fine with this)
+    private boolean returnBackStackImmediate(FragmentManager fm) {
+        List<Fragment> fragments = fm.getFragments();
+        if (fragments != null && fragments.size() > 0) {
+            for (Fragment fragment : fragments) {
+                if (fragment.getChildFragmentManager().getBackStackEntryCount() > 0) {
+                    if (fragment.getChildFragmentManager().popBackStackImmediate()) {
+                        return true;
+                    } else {
+                        return returnBackStackImmediate(fragment.getChildFragmentManager());
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
-    public void onSymptomListResume() {
-        mNavigationView.getMenu().getItem(1).setChecked(true);
-    }
-
-    @Override
-    public void onTagListResume() {
-        mNavigationView.getMenu().getItem(2).setChecked(true);
+    public void OnDataChanged() {
     }
 }

@@ -8,4 +8,6 @@
     <color name="ColorAccentDark">#00BFA5</color>
     <color name="ColorAccentLight">#A7FFEB</color>
     <color name="White">#FFFFFF</color>
+    <color name="RecordColor">#4CAF50</color>
+    <color name="HistoryColor">#9C27B0</color>
 </resources>
